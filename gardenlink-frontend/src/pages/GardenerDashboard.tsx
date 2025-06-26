@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Leaf, LogOut } from 'lucide-react';
+import { logout, isAuthenticated } from '../api';
 
 const allServices = [
   'Lawn Mowing',
@@ -35,7 +36,22 @@ const GardenerDashboard = () => {
     photo: '',
   });
   const [success, setSuccess] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+
+  // Check authentication on component mount
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate('/gardener/auth');
+      return;
+    }
+    
+    // Load user data from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -57,8 +73,21 @@ const GardenerDashboard = () => {
   };
 
   const handleLogout = () => {
+    logout();
     navigate('/gardener/auth');
   };
+
+  // Show loading while checking authentication
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-garden mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 flex items-center justify-center">
@@ -79,6 +108,14 @@ const GardenerDashboard = () => {
               <LogOut className="w-5 h-5" /> Log out
             </button>
           </div>
+          
+          {/* User Info Display */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">Account Information</h3>
+            <p className="text-sm text-gray-600">Email: {user.email}</p>
+            <p className="text-sm text-gray-600">Role: {user.role}</p>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               name="name"
@@ -136,7 +173,8 @@ const GardenerDashboard = () => {
               onChange={handleChange}
               required
             />
-            <div>
+            
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">Services Offered</label>
               <div className="flex flex-wrap gap-3">
                 {allServices.map(service => (

@@ -8,6 +8,7 @@ import GardenerProfile from './pages/GardenerProfile';
 import About from './pages/About';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -19,7 +20,14 @@ function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/gardener/auth" element={<GardenerAuth />} />
-              <Route path="/gardener/dashboard" element={<GardenerDashboard />} />
+              <Route 
+                path="/gardener/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <GardenerDashboard />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/search" element={<SearchGardeners />} />
               <Route path="/gardener/:id" element={<GardenerProfile />} />
               <Route path="/about" element={<About />} />

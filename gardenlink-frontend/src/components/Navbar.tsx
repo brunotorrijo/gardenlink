@@ -1,18 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, Leaf } from 'lucide-react';
+import { Menu, X, Leaf, LogOut } from 'lucide-react';
+import { isAuthenticated, logout } from '../api';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, [location]);
 
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Find Gardeners', path: '/search' },
     { name: 'About', path: '/about' },
-    { name: 'Contact', path: '/contact' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    setIsLoggedIn(false);
+    setIsOpen(false);
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -45,18 +56,37 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/search"
-              className="btn-secondary text-sm"
-            >
-              I Need a Gardener
-            </Link>
-            <Link
-              to="/gardener/auth"
-              className="btn-primary text-sm"
-            >
-              I'm a Gardener
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/gardener/dashboard"
+                  className="btn-primary text-sm"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 text-gray-600 hover:text-garden text-sm"
+                >
+                  <LogOut className="w-4 h-4" /> Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/search"
+                  className="btn-secondary text-sm"
+                >
+                  I Need a Gardener
+                </Link>
+                <Link
+                  to="/gardener/auth"
+                  className="btn-primary text-sm"
+                >
+                  I'm a Gardener
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -94,20 +124,40 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="pt-4 space-y-2">
-                <Link
-                  to="/search"
-                  className="block w-full text-center btn-secondary"
-                  onClick={() => setIsOpen(false)}
-                >
-                  I Need a Gardener
-                </Link>
-                <Link
-                  to="/gardener/auth"
-                  className="block w-full text-center btn-primary"
-                  onClick={() => setIsOpen(false)}
-                >
-                  I'm a Gardener
-                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      to="/gardener/dashboard"
+                      className="block w-full text-center btn-primary"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-center text-gray-600 hover:text-garden py-2 px-3 rounded-md"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/search"
+                      className="block w-full text-center btn-secondary"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      I Need a Gardener
+                    </Link>
+                    <Link
+                      to="/gardener/auth"
+                      className="block w-full text-center btn-primary"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      I'm a Gardener
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
