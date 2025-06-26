@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      UserRole @default(GARDENER)
+  createdAt DateTime @default(now())
+  profile   GardenerProfile?
+  payments  Payment[]
+}
+
+model GardenerProfile {
+  id          String            @id @default(uuid())
+  user        User              @relation(fields: [userId], references: [id])
+  userId      String            @unique
+  name        String
+  location    String
+  zip         String
+  age         Int
+  price       Int
+  email       String
+  bio         String
+  photo       String?
+  services    ServiceCategory[] @relation("ProfileServices")
+  rating      Float             @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  reviews     Review[]
+}
+
+model ServiceCategory {
+  id         String             @id @default(uuid())
+  name       String             @unique
+  profiles   GardenerProfile[]  @relation("ProfileServices")
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  amount    Int
+  createdAt DateTime @default(now())
+  status    PaymentStatus
+}
+
+model Review {
+  id          String           @id @default(uuid())
+  profile     GardenerProfile  @relation(fields: [profileId], references: [id])
+  profileId   String
+  rating      Int              // 1-5
+  comment     String?
+  createdAt   DateTime         @default(now())
+}
+
+enum UserRole {
+  GARDENER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
