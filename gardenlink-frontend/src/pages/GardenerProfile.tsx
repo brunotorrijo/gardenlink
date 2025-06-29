@@ -1,72 +1,97 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Star, BadgeDollarSign, Leaf, Mail } from 'lucide-react';
+import { getGardenerProfile, getGardenerReviews } from '../api';
 
-const mockGardeners = [
-  {
-    id: '1',
-    name: 'Alex Green',
-    location: 'Austin, TX',
-    zip: '78701',
-    age: 28,
-    price: 35,
-    rating: 4.9,
-    services: ['Lawn Mowing', 'Planting', 'Garden Design'],
-    photo: 'https://randomuser.me/api/portraits/men/32.jpg',
-    bio: 'Experienced gardener with a passion for sustainable landscapes.',
-    email: 'alex.green@email.com',
-  },
-  {
-    id: '2',
-    name: 'Maria Flores',
-    location: 'Dallas, TX',
-    zip: '75201',
-    age: 34,
-    price: 40,
-    rating: 4.7,
-    services: ['Lawn Mowing', 'Maintenance'],
-    photo: 'https://randomuser.me/api/portraits/women/44.jpg',
-    bio: 'Lawn care specialist with 10+ years of experience.',
-    email: 'maria.flores@email.com',
-  },
-  {
-    id: '3',
-    name: 'Sam Patel',
-    location: 'Houston, TX',
-    zip: '77002',
-    age: 25,
-    price: 30,
-    rating: 4.8,
-    services: ['Planting', 'Garden Design'],
-    photo: 'https://randomuser.me/api/portraits/men/65.jpg',
-    bio: 'Creative garden designer and plant lover.',
-    email: 'sam.patel@email.com',
-  },
-  {
-    id: '4',
-    name: 'Linda Brown',
-    location: 'San Antonio, TX',
-    zip: '78205',
-    age: 41,
-    price: 45,
-    rating: 5.0,
-    services: ['Lawn Mowing', 'Maintenance', 'Planting'],
-    photo: 'https://randomuser.me/api/portraits/women/68.jpg',
-    bio: 'Reliable and friendly gardener for all your needs.',
-    email: 'linda.brown@email.com',
-  },
-];
+const maskEmail = (email: string) => {
+  const [user, domain] = email.split('@');
+  if (!user || !domain) return email;
+  return user[0] + '***' + user.slice(-1) + '@' + domain;
+};
 
 const GardenerProfile = () => {
-  const { id } = useParams();
-  const gardener = mockGardeners.find(g => g.id === id);
+  const { id } = useParams<{ id: string }>();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState('');
+  const [reviewForm, setReviewForm] = useState({ email: '', rating: 5, comment: '' });
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState(false);
 
-  if (!gardener) {
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    setError('');
+    getGardenerProfile(id)
+      .then(data => setProfile(data))
+      .catch(err => setError(err.message || 'Failed to load profile'))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    setReviewsLoading(true);
+    setReviewsError('');
+    getGardenerReviews(id)
+      .then(data => setReviews(data))
+      .catch(err => setReviewsError(err.message || 'Failed to load reviews'))
+      .finally(() => setReviewsLoading(false));
+  }, [id]);
+
+  // Review form handlers
+  const handleReviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setReviewForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewLoading(true);
+    setReviewError('');
+    setReviewSuccess(false);
+    try {
+      const res = await fetch(`http://localhost:4000/api/gardeners/reviews/pending`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: id,
+          email: reviewForm.email,
+          rating: Number(reviewForm.rating),
+          comment: reviewForm.comment,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit review');
+      setReviewSuccess(true);
+      setReviewForm({ email: '', rating: 5, comment: '' });
+    } catch (err: any) {
+      setReviewError(err.message || 'Failed to submit review');
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-gray-500">Gardener not found.</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-garden mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading profile...</p>
+        </div>
       </div>
     );
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
+  }
+
+  if (!profile) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Profile not found.</div>;
   }
 
   return (
@@ -75,33 +100,133 @@ const GardenerProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card flex flex-col items-center text-center"
+          className="card"
         >
-          <img src={gardener.photo} alt={gardener.name} className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-garden-light" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{gardener.name}</h1>
-          <div className="flex items-center gap-2 text-gray-500 mb-2">
-            <MapPin className="w-4 h-4" /> {gardener.location} ({gardener.zip})
+          <div className="flex items-center gap-6 mb-6">
+            <img
+              src={profile.photo || '/vite.svg'}
+              alt={profile.name}
+              className="w-24 h-24 rounded-full object-cover border border-gray-200"
+            />
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Leaf className="w-5 h-5 text-garden" />
+                <span className="text-2xl font-bold text-garden">{profile.name}</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <MapPin className="w-4 h-4" /> {profile.location} ({profile.zip})
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <BadgeDollarSign className="w-4 h-4 text-garden" /> ${profile.price}/hr
+              </div>
+              <div className="flex items-center gap-2 text-yellow-500 mb-1">
+                <Star className="w-4 h-4" /> <span className="font-semibold">{profile.averageRating ?? 'N/A'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 mb-1">
+                Age: {profile.age}
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {profile.services?.map((s: any) => (
+                  <span key={s.id || s.name} className="bg-garden-light text-garden px-2 py-1 rounded text-xs font-medium">{s.name}</span>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-garden mb-2">
-            <BadgeDollarSign className="w-4 h-4" /> <span className="font-semibold">${gardener.price}</span> / hour
+          <div className="mb-4">
+            <h3 className="font-semibold text-gray-900 mb-1">About</h3>
+            <p className="text-gray-700 whitespace-pre-line">{profile.bio}</p>
           </div>
-          <div className="flex items-center gap-2 text-yellow-500 mb-2">
-            <Star className="w-4 h-4" /> <span className="font-semibold">{gardener.rating}</span>
+          <div className="flex gap-4 items-center mt-6 mb-8">
+            <a
+              href={`mailto:${profile.email}`}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Mail className="w-4 h-4" /> Contact Gardener
+            </a>
+            <Link to="/search" className="btn-secondary">Back to Search</Link>
           </div>
-          <div className="text-gray-600 text-sm mb-2">Age: {gardener.age}</div>
-          <div className="flex flex-wrap gap-2 justify-center mb-2">
-            {gardener.services.map(s => (
-              <span key={s} className="bg-garden-light text-garden text-xs px-2 py-1 rounded-full">{s}</span>
-            ))}
+
+          {/* Reviews Section */}
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-garden mb-4 flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-400" /> Reviews
+            </h3>
+            {reviewsLoading ? (
+              <div className="text-gray-500">Loading reviews...</div>
+            ) : reviewsError ? (
+              <div className="text-red-600">{reviewsError}</div>
+            ) : reviews.length === 0 ? (
+              <div className="text-gray-500">No reviews yet.</div>
+            ) : (
+              <div className="space-y-4 mb-8">
+                {reviews.map((review) => (
+                  <div key={review.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span className="font-semibold text-gray-800">{review.rating}/5</span>
+                      <span className="text-xs text-gray-400 ml-2">{new Date(review.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="text-gray-700 mb-1">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
+                    <div className="text-xs text-gray-500">By {maskEmail(review.user?.email || 'anonymous')}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Public Review Form */}
+            <div className="mt-10">
+              <h4 className="font-semibold text-lg mb-2">Leave a Review</h4>
+              {reviewSuccess ? (
+                <div className="text-green-700 bg-green-50 border border-green-200 rounded p-4 mb-4 text-center">
+                  Thank you! Please check your email to verify and publish your review.
+                </div>
+              ) : (
+                <form onSubmit={handleReviewSubmit} className="space-y-4 max-w-md">
+                  <input
+                    name="email"
+                    type="email"
+                    className="input-field"
+                    placeholder="Your email"
+                    value={reviewForm.email}
+                    onChange={handleReviewChange}
+                    required
+                    disabled={reviewLoading || reviewSuccess}
+                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Rating</label>
+                    <input
+                      name="rating"
+                      type="number"
+                      min={1}
+                      max={5}
+                      className="input-field"
+                      value={reviewForm.rating}
+                      onChange={handleReviewChange}
+                      required
+                      disabled={reviewLoading || reviewSuccess}
+                    />
+                  </div>
+                  <textarea
+                    name="comment"
+                    className="input-field"
+                    placeholder="Your review (optional)"
+                    value={reviewForm.comment}
+                    onChange={handleReviewChange}
+                    rows={3}
+                    disabled={reviewLoading || reviewSuccess}
+                  />
+                  {reviewError && <div className="text-red-600 text-center text-sm">{reviewError}</div>}
+                  <button
+                    type="submit"
+                    className="btn-primary w-full"
+                    disabled={reviewLoading || reviewSuccess}
+                  >
+                    {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
-          <p className="text-gray-500 text-base mb-4 max-w-xl">{gardener.bio}</p>
-          <a
-            href={`mailto:${gardener.email}`}
-            className="btn-primary flex items-center justify-center gap-2 w-full mb-4"
-          >
-            <Mail className="w-5 h-5" /> Contact {gardener.name.split(' ')[0]}
-          </a>
-          <Link to="/search" className="btn-secondary w-full">Back to Search</Link>
         </motion.div>
       </div>
     </div>

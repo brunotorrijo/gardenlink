@@ -6,11 +6,11 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  body {
+}
+
+body {
     @apply bg-gray-50 text-gray-900;
-  }
+}
 }
 
 @layer components {
@@ -20,8 +20,8 @@
   
   .btn-secondary {
     @apply bg-white hover:bg-gray-50 text-garden border border-garden font-medium py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-garden focus:ring-offset-2;
-  }
-  
+}
+
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200;
   }
