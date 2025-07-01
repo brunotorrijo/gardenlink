@@ -5,6 +5,7 @@ import path from 'path';
 import { prisma } from './prisma';
 import authRouter from './routes/auth';
 import gardenerRouter from './routes/gardener';
+import paymentRouter from './routes/payment';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.get('/api/users', async (req, res, next) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/gardeners', gardenerRouter);
+app.use('/api/payments', paymentRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

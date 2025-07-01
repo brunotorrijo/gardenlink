@@ -107,6 +107,13 @@ const getMyProfileHandler = async (req: AuthRequestWithFile, res: Response, next
           select: {
             email: true,
             role: true,
+            subscription: {
+              select: {
+                status: true,
+                plan: true,
+                amount: true
+              }
+            }
           },
         },
         services: true,
@@ -119,7 +126,17 @@ const getMyProfileHandler = async (req: AuthRequestWithFile, res: Response, next
       return;
     }
 
-    res.json(profile);
+    // Add profile publishing status
+    const isPublished = profile.user.subscription?.status === 'active';
+    const profileWithStatus = {
+      ...profile,
+      isPublished,
+      subscriptionStatus: profile.user.subscription?.status || 'none',
+      subscriptionPlan: profile.user.subscription?.plan || null,
+      subscriptionAmount: profile.user.subscription?.amount || null
+    };
+
+    res.json(profileWithStatus);
     return;
   } catch (err) {
     next(err);
@@ -263,13 +280,20 @@ const getPublicProfileHandler = async (req: Request, res: Response, next: expres
   }
 };
 
-// Get all gardener profiles (for search)
+// Get all gardener profiles (for search) - Only show profiles from gardeners with active subscriptions
 const getAllProfilesHandler = async (req: Request, res: Response, next: express.NextFunction): Promise<void> => {
   try {
     const { location, service, minPrice, maxPrice, limit = 20, offset = 0 } = req.query;
 
     // Build where clause for filtering
-    const where: any = {};
+    const where: any = {
+      // Only show profiles from users with active subscriptions
+      user: {
+        subscription: {
+          status: 'active'
+        }
+      }
+    };
     
     if (location) {
       where.OR = [

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Leaf, LogOut, UploadCloud } from 'lucide-react';
+import { Leaf, LogOut, UploadCloud, CreditCard } from 'lucide-react';
 import { logout, isAuthenticated, getMyProfile, saveMyProfile } from '../api';
 
 const allServices = [
@@ -29,6 +29,7 @@ type GardenerForm = {
   services: string[];
   bio: string;
   photo: string;
+  isPublished: boolean;
 };
 
 const GardenerDashboard = () => {
@@ -42,6 +43,7 @@ const GardenerDashboard = () => {
     services: [],
     bio: '',
     photo: '',
+    isPublished: false,
   });
   const [success, setSuccess] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -79,6 +81,7 @@ const GardenerDashboard = () => {
             services: profile.services ? profile.services.map((s: any) => s.name) : [],
             bio: profile.bio || '',
             photo: profile.photo || '',
+            isPublished: profile.isPublished || false,
           });
         })
         .catch(err => {
@@ -138,6 +141,7 @@ const GardenerDashboard = () => {
         services: profile.services ? profile.services.map((s: any) => s.name) : [],
         bio: profile.bio || '',
         photo: profile.photo || '',
+        isPublished: profile.isPublished || false,
       });
     } catch (err: any) {
       setError(err.message || 'Failed to upload photo');
@@ -237,15 +241,61 @@ const GardenerDashboard = () => {
                 disabled={uploading}
               />
             </div>
-            <button onClick={handleLogout} className="flex items-center gap-1 text-gray-500 hover:text-garden text-sm">
-              <LogOut className="w-5 h-5" /> Log out
-            </button>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => navigate('/gardener/payments')} 
+                className="flex items-center gap-1 text-garden hover:text-garden-dark text-sm font-medium"
+              >
+                <CreditCard className="w-4 h-4" /> Payments
+              </button>
+              <button onClick={handleLogout} className="flex items-center gap-1 text-gray-500 hover:text-garden text-sm">
+                <LogOut className="w-5 h-5" /> Log out
+              </button>
+            </div>
           </div>
           {/* User Info Display */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-gray-900 mb-2">Account Information</h3>
             <p className="text-sm text-gray-600">Email: {user?.email}</p>
             <p className="text-sm text-gray-600">Role: {user?.role}</p>
+            
+            {/* Profile Publishing Status */}
+            {form.name && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Profile Status</p>
+                    <p className="text-xs text-gray-600">
+                      {form.isPublished ? 'Your profile is visible to clients' : 'Your profile is not visible to clients'}
+                    </p>
+                  </div>
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    form.isPublished 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {form.isPublished ? 'Published' : 'Unpublished'}
+                  </div>
+                </div>
+                
+                {!form.isPublished && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800 mb-2">
+                      <strong>Subscribe to publish your profile!</strong>
+                    </p>
+                    <p className="text-xs text-blue-700 mb-3">
+                      Clients can only see profiles from gardeners with active subscriptions.
+                    </p>
+                    <button
+                      onClick={() => navigate('/gardener/payments')}
+                      className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                    >
+                      View Subscription Plans
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <input

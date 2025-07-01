@@ -122,7 +122,22 @@ const SearchGardeners = () => {
         ) : error ? (
           <div className="text-center text-red-600 py-10">{error}</div>
         ) : gardeners.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">No gardeners found. Try adjusting your filters.</div>
+          <div className="text-center py-10">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Leaf className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Gardeners Found</h3>
+              <p className="text-gray-600 mb-4">
+                We couldn't find any gardeners matching your criteria in this area.
+              </p>
+              <div className="text-sm text-gray-500 space-y-1">
+                <p>• Try expanding your search area</p>
+                <p>• Adjust your price range</p>
+                <p>• Only subscribed gardeners appear in search results</p>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {gardeners.map(gardener => (

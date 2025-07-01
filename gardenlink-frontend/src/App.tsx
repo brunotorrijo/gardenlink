@@ -9,6 +9,7 @@ import About from './pages/About';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import PaymentDashboard from './components/PaymentDashboard';
 
 function App() {
   return (
@@ -25,6 +26,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <GardenerDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/gardener/payments" 
+                element={
+                  <ProtectedRoute>
+                    <PaymentDashboard />
                   </ProtectedRoute>
                 } 
               />
