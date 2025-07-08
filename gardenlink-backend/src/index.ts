@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { prisma } from './prisma';
 import authRouter from './routes/auth';
-import gardenerRouter from './routes/gardener';
+import yardworkerRouter from './routes/yardworker';
 import paymentRouter from './routes/payment';
 
 dotenv.config();
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'GardenLink backend is running!' });
+  res.json({ status: 'ok', message: 'YardConnect backend is running!' });
 });
 
 app.get('/api/users', async (req, res, next) => {
@@ -32,7 +32,7 @@ app.get('/api/users', async (req, res, next) => {
 });
 
 app.use('/api/auth', authRouter);
-app.use('/api/gardeners', gardenerRouter);
+app.use('/api/yardworkers', yardworkerRouter);
 app.use('/api/payments', paymentRouter);
 
 // Error handling middleware

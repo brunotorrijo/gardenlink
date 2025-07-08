@@ -93,9 +93,9 @@ export function logout(): void {
   localStorage.removeItem('token');
 }
 
-// Gardener profile endpoints
+// Yard Worker profile endpoints
 export async function getMyProfile(token: string) {
-  const res = await fetch(`${API_URL}/gardeners/profile`, {
+  const res = await fetch(`${API_URL}/yardworkers/profile`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
@@ -107,7 +107,7 @@ export async function getMyProfile(token: string) {
 }
 
 export async function saveMyProfile(token: string, profile: any) {
-  const res = await fetch(`${API_URL}/gardeners/profile`, {
+  const res = await fetch(`${API_URL}/yardworkers/profile`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -120,8 +120,8 @@ export async function saveMyProfile(token: string, profile: any) {
   return data;
 }
 
-// Search gardeners with filters
-export async function searchGardeners(params: {
+// Search yard workers with filters
+export async function searchYardWorkers(params: {
   location?: string;
   service?: string;
   minPrice?: number;
@@ -136,23 +136,23 @@ export async function searchGardeners(params: {
   if (params.maxPrice !== undefined) query.append('maxPrice', params.maxPrice.toString());
   if (params.limit !== undefined) query.append('limit', params.limit.toString());
   if (params.offset !== undefined) query.append('offset', params.offset.toString());
-  const res = await fetch(`${API_URL}/gardeners?${query.toString()}`);
+  const res = await fetch(`${API_URL}/yardworkers?${query.toString()}`);
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to search gardeners');
+  if (!res.ok) throw new Error(data.error || 'Failed to search yard workers');
   return data;
 }
 
-// Get a public gardener profile by ID
-export async function getGardenerProfile(id: string) {
-  const res = await fetch(`${API_URL}/gardeners/${id}`);
+// Get a public yard worker profile by ID
+export async function getYardWorkerProfile(id: string) {
+  const res = await fetch(`${API_URL}/yardworkers/${id}`);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to load profile');
   return data;
 }
 
-// Get reviews for a gardener profile
-export async function getGardenerReviews(profileId: string) {
-  const res = await fetch(`${API_URL}/gardeners/${profileId}/reviews`);
+// Get reviews for a yard worker profile
+export async function getYardWorkerReviews(profileId: string) {
+  const res = await fetch(`${API_URL}/yardworkers/${profileId}/reviews`);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to load reviews');
   return data;

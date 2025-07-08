@@ -15,8 +15,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'Find Gardeners', path: '/search' },
-    { name: 'About', path: '/about' },
+    { name: 'Find Yard Workers', path: '/search' },
   ];
 
   const handleLogout = () => {
@@ -34,7 +33,7 @@ const Navbar = () => {
             <div className="w-8 h-8 bg-garden rounded-lg flex items-center justify-center">
               <Leaf className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">GardenLink</span>
+            <span className="text-xl font-bold text-gray-900">YardConnect</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -59,7 +58,7 @@ const Navbar = () => {
             {isLoggedIn ? (
               <>
                 <Link
-                  to="/gardener/dashboard"
+                  to="/yardworker/dashboard"
                   className="btn-primary text-sm"
                 >
                   Dashboard
@@ -77,13 +76,13 @@ const Navbar = () => {
                   to="/search"
                   className="btn-secondary text-sm"
                 >
-                  I Need a Gardener
+                  I Need a Yard Worker
                 </Link>
                 <Link
-                  to="/gardener/auth"
+                  to="/yardworker/auth"
                   className="btn-primary text-sm"
                 >
-                  I'm a Gardener
+                  I'm a Yard Worker
                 </Link>
               </>
             )}
@@ -127,7 +126,7 @@ const Navbar = () => {
                 {isLoggedIn ? (
                   <>
                     <Link
-                      to="/gardener/dashboard"
+                      to="/yardworker/dashboard"
                       className="block w-full text-center btn-primary"
                       onClick={() => setIsOpen(false)}
                     >
@@ -147,14 +146,14 @@ const Navbar = () => {
                       className="block w-full text-center btn-secondary"
                       onClick={() => setIsOpen(false)}
                     >
-                      I Need a Gardener
+                      I Need a Yard Worker
                     </Link>
                     <Link
-                      to="/gardener/auth"
+                      to="/yardworker/auth"
                       className="block w-full text-center btn-primary"
                       onClick={() => setIsOpen(false)}
                     >
-                      I'm a Gardener
+                      I'm a Yard Worker
                     </Link>
                   </>
                 )}

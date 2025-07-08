@@ -17,15 +17,15 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
-  role      UserRole @default(GARDENER)
+  role      UserRole @default(YARD_WORKER)
   createdAt DateTime @default(now())
-  profile   GardenerProfile?
+  profile   YardWorkerProfile?
   payments  Payment[]
   reviews   Review[]
   subscription Subscription?
 }
 
-model GardenerProfile {
+model YardWorkerProfile {
   id          String            @id @default(uuid())
   user        User              @relation(fields: [userId], references: [id])
   userId      String            @unique
@@ -47,7 +47,7 @@ model GardenerProfile {
 model ServiceCategory {
   id         String             @id @default(uuid())
   name       String             @unique
-  profiles   GardenerProfile[]  @relation("ProfileServices")
+  profiles   YardWorkerProfile[]  @relation("ProfileServices")
 }
 
 model Payment {
@@ -79,7 +79,7 @@ model Subscription {
 
 model Review {
   id          String           @id @default(uuid())
-  profile     GardenerProfile  @relation(fields: [profileId], references: [id])
+  profile     YardWorkerProfile  @relation(fields: [profileId], references: [id])
   profileId   String
   user        User?            @relation(fields: [userId], references: [id])
   userId      String?
@@ -100,7 +100,7 @@ model PendingReview {
 }
 
 enum UserRole {
-  GARDENER
+  YARD_WORKER
   ADMIN
 }
 

@@ -19,7 +19,7 @@ const DEFAULT_AVATAR = (
   </svg>
 );
 
-type GardenerForm = {
+type YardWorkerForm = {
   name: string;
   location: string;
   zip: string;
@@ -32,8 +32,8 @@ type GardenerForm = {
   isPublished: boolean;
 };
 
-const GardenerDashboard = () => {
-  const [form, setForm] = useState<GardenerForm>({
+const YardWorkerDashboard = () => {
+  const [form, setForm] = useState<YardWorkerForm>({
     name: '',
     location: '',
     zip: '',
@@ -58,7 +58,7 @@ const GardenerDashboard = () => {
   // Check authentication and load profile on mount
   useEffect(() => {
     if (!isAuthenticated()) {
-      navigate('/gardener/auth');
+      navigate('/yardworker/auth');
       return;
     }
     // Load user data from localStorage
@@ -122,7 +122,7 @@ const GardenerDashboard = () => {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-      const res = await fetch('http://localhost:4000/api/gardeners/profile/photo', {
+      const res = await fetch('http://localhost:4000/api/yardworkers/profile/photo', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -192,7 +192,7 @@ const GardenerDashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/gardener/auth');
+    navigate('/yardworker/auth');
   };
 
   if (loading) {
@@ -243,7 +243,7 @@ const GardenerDashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               <button 
-                onClick={() => navigate('/gardener/payments')} 
+                onClick={() => navigate('/yardworker/payments')} 
                 className="flex items-center gap-1 text-garden hover:text-garden-dark text-sm font-medium"
               >
                 <CreditCard className="w-4 h-4" /> Payments
@@ -284,10 +284,10 @@ const GardenerDashboard = () => {
                       <strong>Subscribe to publish your profile!</strong>
                     </p>
                     <p className="text-xs text-blue-700 mb-3">
-                      Clients can only see profiles from gardeners with active subscriptions.
+                      Clients can only see profiles from yard workers with active subscriptions.
                     </p>
                     <button
-                      onClick={() => navigate('/gardener/payments')}
+                      onClick={() => navigate('/yardworker/payments')}
                       className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 transition-colors"
                     >
                       View Subscription Plans
@@ -406,4 +406,4 @@ const GardenerDashboard = () => {
   );
 };
 
-export default GardenerDashboard; 
+export default YardWorkerDashboard; 

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import { signup, login, checkBackendHealth } from '../api';
 
-const GardenerAuth = () => {
+const YardWorkerAuth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
@@ -56,7 +56,7 @@ const GardenerAuth = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       
       // Redirect to dashboard
-      navigate('/gardener/dashboard');
+      navigate('/yardworker/dashboard');
     } catch (err: any) {
       console.error('Auth error:', err);
       setError(err.message || 'Authentication failed');
@@ -77,7 +77,7 @@ const GardenerAuth = () => {
             <div className="w-10 h-10 bg-garden rounded-lg flex items-center justify-center">
               <Leaf className="w-6 h-6 text-white" />
             </div>
-            <span className="ml-2 text-2xl font-bold text-garden">Gardener {isSignUp ? 'Sign Up' : 'Sign In'}</span>
+            <span className="ml-2 text-2xl font-bold text-garden">Yard Worker {isSignUp ? 'Sign Up' : 'Sign In'}</span>
           </div>
           
           {/* Backend Status Indicator */}
@@ -152,4 +152,4 @@ const GardenerAuth = () => {
   );
 };
 
-export default GardenerAuth; 
+export default YardWorkerAuth; 

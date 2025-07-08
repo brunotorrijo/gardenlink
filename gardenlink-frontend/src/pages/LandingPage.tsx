@@ -7,26 +7,26 @@ const LandingPage = () => {
     {
       icon: <Search className="w-6 h-6" />,
       title: 'Free Search',
-      description: 'Search and browse gardener profiles completely free. No account required.'
+      description: 'Search and browse yard worker profiles completely free. No account required.'
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: 'Verified Professionals',
-      description: 'All gardeners are verified and pay subscription fees for quality assurance.'
+      description: 'All yard workers are verified and pay subscription fees for quality assurance.'
     },
     {
       icon: <Star className="w-6 h-6" />,
       title: 'Real Reviews',
-      description: 'Read verified reviews from homeowners who have worked with these gardeners.'
+      description: 'Read verified reviews from homeowners who have worked with these yard workers.'
     },
     {
       icon: <Mail className="w-6 h-6" />,
       title: 'Direct Contact',
-      description: 'Contact gardeners directly via email or phone. No platform fees or booking charges.'
+      description: 'Contact yard workers directly via email or phone. No platform fees or booking charges.'
     }
   ];
 
-  const gardenerBenefits = [
+  const yardWorkerBenefits = [
     {
       icon: <DollarSign className="w-6 h-6" />,
       title: 'Lead Generation',
@@ -50,7 +50,7 @@ const LandingPage = () => {
   ];
 
   const stats = [
-    { number: '500+', label: 'Active Gardeners' },
+    { number: '500+', label: 'Active Yard Workers' },
     { number: '2,000+', label: 'Happy Customers' },
     { number: '50+', label: 'Cities Covered' },
     { number: '4.8', label: 'Average Rating' }
@@ -94,12 +94,12 @@ const LandingPage = () => {
                 </div>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                Find Local Garden
-                <span className="block">Professionals</span>
+                Find Local Yard
+                <span className="block">Workers</span>
               </h1>
               <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Connect directly with verified gardeners in your area. 
-                <span className="font-semibold"> Free for homeowners, subscription-based for gardeners.</span>
+                Connect directly with verified yard workers in your area. 
+                <span className="font-semibold"> Free for homeowners, subscription-based for yard workers.</span>
               </p>
             </motion.div>
 
@@ -114,13 +114,13 @@ const LandingPage = () => {
                 to="/search"
                 className="bg-white text-garden hover:bg-gray-50 font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
               >
-                Search Gardeners (Free)
+                Search Yard Workers (Free)
               </Link>
               <Link
-                to="/gardener/auth"
+                to="/yard-worker/auth"
                 className="bg-garden-dark text-white hover:bg-garden-darker font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
               >
-                Join as Gardener
+                Join as Yard Worker
               </Link>
             </motion.div>
 
@@ -150,7 +150,7 @@ const LandingPage = () => {
               How It Works for Homeowners
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Simple, free, and direct connection with local gardeners
+              Simple, free, and direct connection with local yard workers
             </p>
           </div>
 
@@ -169,7 +169,7 @@ const LandingPage = () => {
                 Search & Browse
               </h3>
               <p className="text-gray-600">
-                Search for gardeners by location, services, and price. Browse profiles, photos, and reviews.
+                Search for yard workers by location, services, and price. Browse profiles, photos, and reviews.
               </p>
             </motion.div>
 
@@ -187,7 +187,7 @@ const LandingPage = () => {
                 Contact Directly
               </h3>
               <p className="text-gray-600">
-                Contact gardeners directly via email or phone. No platform fees or booking charges.
+                Contact yard workers directly via email or phone. No platform fees or booking charges.
               </p>
             </motion.div>
 
@@ -205,7 +205,7 @@ const LandingPage = () => {
                 Work & Pay Directly
               </h3>
               <p className="text-gray-600">
-                Arrange work directly with the gardener. Pay them directly - no platform fees.
+                Arrange work directly with the yard worker. Pay them directly - no platform fees.
               </p>
             </motion.div>
           </div>
@@ -217,7 +217,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose GardenLink?
+              Why Choose YardConnect?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               The smart way to find and connect with local garden professionals
@@ -249,12 +249,12 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* For Gardeners Section */}
+      {/* For Yard Workers Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              For Garden Professionals
+              For Yard Workers
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Get more leads and grow your business with our subscription-based platform
@@ -262,7 +262,7 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {gardenerBenefits.map((benefit, index) => (
+            {yardWorkerBenefits.map((benefit, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -323,7 +323,7 @@ const LandingPage = () => {
                   ))}
                 </ul>
                 <Link
-                  to="/gardener/auth"
+                  to="/yard-worker/auth"
                   className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
                     plan.popular
                       ? 'bg-garden text-white hover:bg-garden-dark'
@@ -351,20 +351,20 @@ const LandingPage = () => {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of homeowners and gardeners who trust GardenLink for their garden care needs.
+              Join thousands of homeowners and yard workers who trust YardConnect for their garden care needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/search"
                 className="bg-white text-garden hover:bg-gray-50 font-semibold py-3 px-8 rounded-lg transition-all duration-200"
               >
-                Search Gardeners (Free)
+                Search Yard Workers (Free)
               </Link>
               <Link
-                to="/gardener/auth"
+                to="/yard-worker/auth"
                 className="bg-garden-dark text-white hover:bg-garden-darker font-semibold py-3 px-8 rounded-lg transition-all duration-200"
               >
-                Join as Gardener
+                Join as Yard Worker
               </Link>
             </div>
           </motion.div>

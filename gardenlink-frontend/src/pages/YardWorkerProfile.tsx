@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Star, BadgeDollarSign, Leaf, Mail } from 'lucide-react';
-import { getGardenerProfile, getGardenerReviews } from '../api';
+import { getYardWorkerProfile, getYardWorkerReviews } from '../api';
 
 const maskEmail = (email: string) => {
   const [user, domain] = email.split('@');
@@ -10,7 +10,7 @@ const maskEmail = (email: string) => {
   return user[0] + '***' + user.slice(-1) + '@' + domain;
 };
 
-const GardenerProfile = () => {
+const YardWorkerProfile = () => {
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const GardenerProfile = () => {
     if (!id) return;
     setLoading(true);
     setError('');
-    getGardenerProfile(id)
+    getYardWorkerProfile(id)
       .then(data => setProfile(data))
       .catch(err => setError(err.message || 'Failed to load profile'))
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ const GardenerProfile = () => {
     if (!id) return;
     setReviewsLoading(true);
     setReviewsError('');
-    getGardenerReviews(id)
+    getYardWorkerReviews(id)
       .then(data => setReviews(data))
       .catch(err => setReviewsError(err.message || 'Failed to load reviews'))
       .finally(() => setReviewsLoading(false));
@@ -54,7 +54,7 @@ const GardenerProfile = () => {
     setReviewError('');
     setReviewSuccess(false);
     try {
-      const res = await fetch(`http://localhost:4000/api/gardeners/reviews/pending`, {
+      const res = await fetch(`http://localhost:4000/api/yardworkers/reviews/pending`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +96,7 @@ const GardenerProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -141,41 +141,34 @@ const GardenerProfile = () => {
               href={`mailto:${profile.email}`}
               className="btn-primary flex items-center gap-2"
             >
-              <Mail className="w-4 h-4" /> Contact Gardener
+              <Mail className="w-4 h-4" /> Contact Yard Worker
             </a>
             <Link to="/search" className="btn-secondary">Back to Search</Link>
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-8">
-            <h3 className="text-xl font-bold text-garden mb-4 flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-400" /> Reviews
-            </h3>
-            {reviewsLoading ? (
-              <div className="text-gray-500">Loading reviews...</div>
-            ) : reviewsError ? (
-              <div className="text-red-600">{reviewsError}</div>
-            ) : reviews.length === 0 ? (
-              <div className="text-gray-500">No reviews yet.</div>
+          <div className="mt-8 w-full">
+            <h2 className="text-xl font-bold text-garden flex items-center gap-2 mb-2">
+              <Star className="w-5 h-5" /> Reviews
+            </h2>
+            {reviews.length === 0 ? (
+              <p className="text-gray-400 text-sm mb-4">No reviews yet.</p>
             ) : (
-              <div className="space-y-4 mb-8">
-                {reviews.map((review) => (
-                  <div key={review.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Star className="w-4 h-4 text-yellow-400" />
-                      <span className="font-semibold text-gray-800">{review.rating}/5</span>
-                      <span className="text-xs text-gray-400 ml-2">{new Date(review.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="text-gray-700 mb-1">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
-                    <div className="text-xs text-gray-500">By {maskEmail(review.user?.email || 'anonymous')}</div>
+              <div className="mb-4 w-full">{reviews.map((review) => (
+                <div key={review.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Star className="w-4 h-4 text-yellow-400" />
+                    <span className="font-semibold text-gray-800">{review.rating}/5</span>
+                    <span className="text-xs text-gray-400 ml-2">{new Date(review.createdAt).toLocaleDateString()}</span>
                   </div>
-                ))}
-              </div>
+                  <div className="text-gray-700 mb-1">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
+                  <div className="text-xs text-gray-500">By {maskEmail(review.user?.email || 'anonymous')}</div>
+                </div>
+              ))}</div>
             )}
-
-            {/* Public Review Form */}
-            <div className="mt-10">
-              <h4 className="font-semibold text-lg mb-2">Leave a Review</h4>
+            <hr className="my-4" />
+            <div className="bg-gray-50 p-4 rounded-lg shadow-sm w-full">
+              <h3 className="font-semibold mb-2">Leave a Review</h3>
               {reviewSuccess ? (
                 <div className="text-green-700 bg-green-50 border border-green-200 rounded p-4 mb-4 text-center">
                   Thank you! Please check your email to verify and publish your review.
@@ -233,4 +226,4 @@ const GardenerProfile = () => {
   );
 };
 
-export default GardenerProfile;
+export default YardWorkerProfile;

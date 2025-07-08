@@ -39,7 +39,7 @@ const signupHandler: RequestHandler = async (req, res, next) => {
       data: {
         email,
         password: hashed,
-        role: 'GARDENER',
+        role: 'YARD_WORKER',
       },
     });
     

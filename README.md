@@ -138,6 +138,9 @@ A **lead generation platform** that connects homeowners with local gardeners for
    - Implement proper image optimization
    - Add file size and type validation
 
+6. **Lawn Care Worker**
+    - change name everywhere, front end
+
 ### 🟡 **Medium Priority**
 
 6. **Error Handling**

@@ -12,10 +12,10 @@ const Footer = () => {
               <div className="w-8 h-8 bg-garden rounded-lg flex items-center justify-center">
                 <Leaf className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">GardenLink</span>
+              <span className="text-xl font-bold text-gray-900">YardConnect</span>
             </div>
             <p className="text-gray-600 mb-4 max-w-md">
-              Connecting homeowners with trusted local gardeners. Find the perfect match for your garden care needs.
+              Connecting homeowners with trusted local yard workers. Find the perfect match for your yard care needs.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-garden transition-colors">
@@ -43,7 +43,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/search" className="text-gray-600 hover:text-garden transition-colors">
-                  Find Gardeners
+                  Find Yard Workers
                 </Link>
               </li>
               <li>
@@ -92,7 +92,7 @@ const Footer = () => {
         <div className="mt-8 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm">
-              © 2024 GardenLink. All rights reserved.
+              © 2024 YardConnect. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-500 hover:text-garden text-sm transition-colors">

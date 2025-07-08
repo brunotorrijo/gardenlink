@@ -78,7 +78,7 @@ transporter.verify((error: Error | null, success: boolean) => {
 const sendEmail = async (to: string, subject: string, html: string) => {
   try {
     const info = await transporter.sendMail({
-      from: '"GardenLink" <noreply@gardenlink.com>',
+      from: '"YardConnect" <noreply@yardconnect.com>',
       to,
       subject,
       html,
@@ -91,7 +91,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   }
 };
 
-// Get current user's gardener profile
+// Get current user's yard worker profile
 const getMyProfileHandler = async (req: AuthRequestWithFile, res: Response, next: express.NextFunction): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -100,7 +100,7 @@ const getMyProfileHandler = async (req: AuthRequestWithFile, res: Response, next
       return;
     }
 
-    const profile = await prisma.gardenerProfile.findUnique({
+    const profile = await prisma.yardWorkerProfile.findUnique({
       where: { userId },
       include: {
         user: {
@@ -143,7 +143,7 @@ const getMyProfileHandler = async (req: AuthRequestWithFile, res: Response, next
   }
 };
 
-// Create or update gardener profile
+// Create or update yard worker profile
 const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Response, next: express.NextFunction): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -164,14 +164,14 @@ const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Respo
     const profileData = result.data;
 
     // Check if profile already exists
-    const existingProfile = await prisma.gardenerProfile.findUnique({
+    const existingProfile = await prisma.yardWorkerProfile.findUnique({
       where: { userId },
     });
 
     let profile;
     if (existingProfile) {
       // Update existing profile
-      profile = await prisma.gardenerProfile.update({
+      profile = await prisma.yardWorkerProfile.update({
         where: { userId },
         data: {
           name: profileData.name,
@@ -202,7 +202,7 @@ const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Respo
       });
     } else {
       // Create new profile
-      profile = await prisma.gardenerProfile.create({
+      profile = await prisma.yardWorkerProfile.create({
         data: {
           userId,
           name: profileData.name,
@@ -240,12 +240,12 @@ const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Respo
   }
 };
 
-// Get public gardener profile by ID
+// Get public yard worker profile by ID
 const getPublicProfileHandler = async (req: Request, res: Response, next: express.NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
 
-    const profile = await prisma.gardenerProfile.findUnique({
+    const profile = await prisma.yardWorkerProfile.findUnique({
       where: { id },
       include: {
         services: true,
@@ -259,7 +259,7 @@ const getPublicProfileHandler = async (req: Request, res: Response, next: expres
     });
 
     if (!profile) {
-      res.status(404).json({ error: 'Gardener profile not found' });
+      res.status(404).json({ error: 'Yard worker profile not found' });
       return;
     }
 
@@ -280,7 +280,7 @@ const getPublicProfileHandler = async (req: Request, res: Response, next: expres
   }
 };
 
-// Get all gardener profiles (for search) - Only show profiles from gardeners with active subscriptions
+// Get all yard worker profiles (for search) - Only show profiles from yard workers with active subscriptions
 const getAllProfilesHandler = async (req: Request, res: Response, next: express.NextFunction): Promise<void> => {
   try {
     const { location, service, minPrice, maxPrice, limit = 20, offset = 0 } = req.query;
@@ -316,7 +316,7 @@ const getAllProfilesHandler = async (req: Request, res: Response, next: express.
       if (maxPrice) where.price.lte = parseFloat(maxPrice as string);
     }
 
-    const profiles = await prisma.gardenerProfile.findMany({
+    const profiles = await prisma.yardWorkerProfile.findMany({
       where,
       include: {
         services: true,
@@ -369,7 +369,7 @@ router.post('/profile/photo', authenticateToken, upload.single('photo'), async (
     // Save full photo URL to profile
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const photoUrl = `${baseUrl}/uploads/${req.file.filename}`;
-    await prisma.gardenerProfile.update({
+    await prisma.yardWorkerProfile.update({
       where: { userId },
       data: { photo: photoUrl },
     });
@@ -397,7 +397,7 @@ router.post('/reviews', authenticateToken, async (req: AuthRequestWithFile, res:
     // Prevent duplicate reviews by same user for same profile
     const existing = await prisma.review.findFirst({ where: { profileId, userId } });
     if (existing) {
-      res.status(409).json({ error: 'You have already reviewed this gardener.' });
+      res.status(409).json({ error: 'You have already reviewed this yard worker.' });
       return;
     }
     const review = await prisma.review.create({
@@ -413,7 +413,7 @@ router.post('/reviews', authenticateToken, async (req: AuthRequestWithFile, res:
   }
 });
 
-// GET /api/gardeners/:id/reviews - Get reviews for a gardener
+// GET /api/yardworkers/:id/reviews - Get reviews for a yard worker
 router.get('/:id/reviews', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
@@ -458,13 +458,13 @@ router.post('/reviews/pending', async (req, res, next) => {
     }
     
     // Check if profile exists
-    const profile = await prisma.gardenerProfile.findUnique({
+    const profile = await prisma.yardWorkerProfile.findUnique({
       where: { id: profileId },
       select: { id: true, name: true }
     });
     
     if (!profile) {
-      res.status(404).json({ error: 'Gardener profile not found' });
+      res.status(404).json({ error: 'Yard worker profile not found' });
       return;
     }
     
@@ -496,11 +496,11 @@ router.post('/reviews/pending', async (req, res, next) => {
     
     // Send verification email
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const verifyUrl = `${baseUrl}/api/gardeners/reviews/verify/${token}`;
+    const verifyUrl = `${baseUrl}/api/yardworkers/reviews/verify/${token}`;
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #059669;">GardenLink Review Verification</h2>
+        <h2 style="color: #059669;">YardConnect Review Verification</h2>
         <p>Thank you for leaving a review for <strong>${profile.name}</strong>!</p>
         <p>To verify and publish your review, please click the button below:</p>
         <div style="text-align: center; margin: 30px 0;">
@@ -521,7 +521,7 @@ router.post('/reviews/pending', async (req, res, next) => {
     
     await sendEmail(
       email, 
-      `Verify your review for ${profile.name} - GardenLink`, 
+      `Verify your review for ${profile.name} - YardConnect`, 
       emailHtml
     );
     
@@ -529,7 +529,7 @@ router.post('/reviews/pending', async (req, res, next) => {
     
     res.json({ 
       message: 'Verification email sent successfully! Please check your inbox and click the verification link to publish your review.',
-      gardenerName: profile.name
+      yardWorkerName: profile.name
     });
     return;
   } catch (err) {
@@ -538,7 +538,7 @@ router.post('/reviews/pending', async (req, res, next) => {
   }
 });
 
-// GET /api/gardeners/reviews/verify/:token - Verify and publish review
+// GET /api/yardworkers/reviews/verify/:token - Verify and publish review
 router.get('/reviews/verify/:token', async (req, res, next) => {
   try {
     const { token } = req.params;
@@ -555,7 +555,7 @@ router.get('/reviews/verify/:token', async (req, res, next) => {
         <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
           <h2 style="color: #dc2626;">Invalid Review Link</h2>
           <p>This verification link is invalid or has expired.</p>
-          <p>Please submit your review again from the gardener's profile page.</p>
+          <p>Please submit your review again from the yard worker's profile page.</p>
         </div>
       `);
       return;
@@ -574,7 +574,7 @@ router.get('/reviews/verify/:token', async (req, res, next) => {
     }
     
     // Get profile name for display
-    const profile = await prisma.gardenerProfile.findUnique({
+    const profile = await prisma.yardWorkerProfile.findUnique({
       where: { id: pending.profileId },
       select: { name: true }
     });
@@ -601,11 +601,11 @@ router.get('/reviews/verify/:token', async (req, res, next) => {
         <div style="color: #059669; font-size: 48px; margin-bottom: 20px;">✅</div>
         <h2 style="color: #059669; margin-bottom: 20px;">Review Published Successfully!</h2>
         <p style="font-size: 18px; margin-bottom: 30px;">
-          Thank you for your review of <strong>${profile?.name || 'this gardener'}</strong>!
+          Thank you for your review of <strong>${profile?.name || 'this yard worker'}</strong>!
         </p>
         <p style="color: #666; margin-bottom: 30px;">
-          Your review has been verified and is now live on GardenLink. 
-          Other users will be able to see your feedback when browsing gardeners.
+          Your review has been verified and is now live on YardConnect. 
+          Other users will be able to see your feedback when browsing yard workers.
         </p>
         <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #059669;">
           <p style="margin: 0; color: #065f46;">

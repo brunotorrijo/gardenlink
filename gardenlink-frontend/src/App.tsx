@@ -1,11 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LandingPage from './pages/LandingPage';
-import GardenerAuth from './pages/GardenerAuth';
-import GardenerDashboard from './pages/GardenerDashboard';
-import SearchGardeners from './pages/SearchGardeners';
-import GardenerProfile from './pages/GardenerProfile';
-import About from './pages/About';
+import YardWorkerAuth from './pages/YardWorkerAuth';
+import YardWorkerDashboard from './pages/YardWorkerDashboard';
+import SearchYardWorkers from './pages/SearchYardWorkers';
+import YardWorkerProfile from './pages/YardWorkerProfile';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -20,26 +19,25 @@ function App() {
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/gardener/auth" element={<GardenerAuth />} />
+              <Route path="/yardworker/auth" element={<YardWorkerAuth />} />
               <Route 
-                path="/gardener/dashboard" 
+                path="/yardworker/dashboard" 
                 element={
                   <ProtectedRoute>
-                    <GardenerDashboard />
+                    <YardWorkerDashboard />
                   </ProtectedRoute>
                 } 
               />
               <Route 
-                path="/gardener/payments" 
+                path="/yardworker/payments" 
                 element={
                   <ProtectedRoute>
                     <PaymentDashboard />
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/search" element={<SearchGardeners />} />
-              <Route path="/gardener/:id" element={<GardenerProfile />} />
-              <Route path="/about" element={<About />} />
+              <Route path="/search" element={<SearchYardWorkers />} />
+              <Route path="/yardworker/:id" element={<YardWorkerProfile />} />
             </Routes>
           </AnimatePresence>
         </main>
