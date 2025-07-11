@@ -11,31 +11,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20',
 });
 
-// Subscription plans configuration
-const SUBSCRIPTION_PLANS = {
-  basic: {
-    name: 'Basic Plan',
-    price: 2900, // $29.00 in cents
-    features: ['Appear in search results', 'Basic profile', 'Email contact'],
-    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID || 'price_basic_placeholder'
-  },
-  premium: {
-    name: 'Premium Plan',
-    price: 5900, // $59.00 in cents
-    features: ['Priority placement', 'Enhanced profile', 'Phone contact', 'Featured listing'],
-    stripePriceId: process.env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_placeholder'
-  },
-  featured: {
-    name: 'Featured Plan',
-    price: 9900, // $99.00 in cents
-    features: ['Top placement', 'Full profile', 'All contact methods', 'Analytics dashboard'],
-    stripePriceId: process.env.STRIPE_FEATURED_PRICE_ID || 'price_featured_placeholder'
-  }
+// Single subscription plan configuration
+const SUBSCRIPTION_PLAN = {
+  name: 'YardConnect Subscription',
+  price: 1000, // $10.00 in cents (from the price object you provided)
+  features: [
+    'Appear in search results',
+    'Complete profile with photo',
+    'Contact information displayed',
+    'Review system access',
+    'Direct client contact'
+  ],
+  stripePriceId: process.env.STRIPE_PRICE_ID || 'price_1RiewjFpxfLRK59KmK7TgdTF'
 };
 
 // Validation schemas
 const createSubscriptionSchema = z.object({
-  plan: z.enum(['basic', 'premium', 'featured']),
+  plan: z.literal('subscription'), // Only one plan option
 });
 
 const cancelSubscriptionSchema = z.object({
@@ -83,9 +75,6 @@ const createSubscriptionHandler: RequestHandler = async (req: AuthRequest, res: 
       return;
     }
 
-    const { plan } = result.data;
-    const planConfig = SUBSCRIPTION_PLANS[plan];
-
     // Get user info
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -102,18 +91,18 @@ const createSubscriptionHandler: RequestHandler = async (req: AuthRequest, res: 
       payment_method_types: ['card'],
       line_items: [
         {
-          price: planConfig.stripePriceId,
+          price: SUBSCRIPTION_PLAN.stripePriceId,
           quantity: 1,
         },
       ],
       mode: 'subscription',
-      success_url: `${req.protocol}://${req.get('host')}/gardener/dashboard?success=true`,
-      cancel_url: `${req.protocol}://${req.get('host')}/gardener/dashboard?canceled=true`,
+      success_url: `${req.protocol}://${req.get('host')}/yardworker/dashboard?success=true`,
+      cancel_url: `${req.protocol}://${req.get('host')}/yardworker/dashboard?canceled=true`,
       customer_email: user.email,
       metadata: {
         userId,
-        plan,
-        gardenerName: user.profile?.name || 'Unknown',
+        plan: 'subscription',
+        yardWorkerName: user.profile?.name || 'Unknown',
       },
     });
 
@@ -173,10 +162,10 @@ const cancelSubscriptionHandler: RequestHandler = async (req: AuthRequest, res: 
   }
 };
 
-// Get subscription plans
+// Get subscription plan
 const getSubscriptionPlansHandler: RequestHandler = async (req: Request, res: Response, next) => {
   try {
-    res.json(SUBSCRIPTION_PLANS);
+    res.json({ subscription: SUBSCRIPTION_PLAN });
     return;
   } catch (err) {
     next(err);
@@ -207,16 +196,13 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response,
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
-        const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(session);
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
       case 'invoice.payment_succeeded':
-        const invoice = event.data.object as Stripe.Invoice;
-        await handlePaymentSucceeded(invoice);
+        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
       case 'invoice.payment_failed':
-        const failedInvoice = event.data.object as Stripe.Invoice;
-        await handlePaymentFailed(failedInvoice);
+        await handlePaymentFailed(event.data.object as Stripe.Invoice);
         break;
       default:
         console.log(`Unhandled event type: ${event.type}`);
@@ -230,91 +216,115 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response,
   }
 };
 
-// Webhook handlers
+// Handle successful checkout
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.userId;
-  const plan = session.metadata?.plan;
+  try {
+    const { userId, plan, yardWorkerName } = session.metadata || {};
+    
+    if (!userId) {
+      console.error('No userId in session metadata');
+      return;
+    }
 
-  if (!userId || !plan) {
-    console.error('Missing metadata in checkout session');
-    return;
+    // Create or update subscription in database
+    const subscription = await prisma.subscription.upsert({
+      where: { userId },
+      update: {
+        plan: plan || 'subscription',
+        status: 'active',
+        stripeId: session.subscription as string,
+        amount: SUBSCRIPTION_PLAN.price,
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+      create: {
+        userId,
+        plan: plan || 'subscription',
+        status: 'active',
+        stripeId: session.subscription as string,
+        amount: SUBSCRIPTION_PLAN.price,
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+
+    // Create payment record
+    await prisma.payment.create({
+      data: {
+        userId,
+        amount: SUBSCRIPTION_PLAN.price,
+        status: 'COMPLETED',
+        stripeId: session.payment_intent as string,
+        subscriptionId: subscription.id,
+      },
+    });
+
+    console.log(`Subscription created for user ${userId} (${yardWorkerName})`);
+  } catch (error) {
+    console.error('Error handling checkout completed:', error);
   }
-
-  const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-  const planConfig = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS];
-
-  // Create subscription in database
-  await prisma.subscription.create({
-    data: {
-      userId,
-      plan,
-      status: 'active',
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      amount: planConfig.price,
-      stripeId: subscription.id,
-    },
-  });
-
-  console.log(`Subscription created for user ${userId}, plan: ${plan}`);
 }
 
+// Handle successful payment
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
-  
-  // Find subscription in database
-  const subscription = await prisma.subscription.findFirst({
-    where: { stripeId: subscriptionId },
-  });
+  try {
+    const subscriptionId = invoice.subscription as string;
+    
+    if (!subscriptionId) {
+      console.error('No subscription ID in invoice');
+      return;
+    }
 
-  if (!subscription) {
-    console.error('Subscription not found for invoice:', invoice.id);
-    return;
+    // Update subscription in database
+    await prisma.subscription.updateMany({
+      where: { stripeId: subscriptionId },
+      data: {
+        status: 'active',
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+
+    // Create payment record
+    const subscription = await prisma.subscription.findFirst({
+      where: { stripeId: subscriptionId },
+    });
+
+    if (subscription) {
+      await prisma.payment.create({
+        data: {
+          userId: subscription.userId,
+          amount: invoice.amount_paid,
+          status: 'COMPLETED',
+          stripeId: invoice.payment_intent as string,
+          subscriptionId: subscription.id,
+        },
+      });
+    }
+
+    console.log(`Payment succeeded for subscription ${subscriptionId}`);
+  } catch (error) {
+    console.error('Error handling payment succeeded:', error);
   }
-
-  // Create payment record
-  await prisma.payment.create({
-    data: {
-      userId: subscription.userId,
-      amount: invoice.amount_paid,
-      status: 'COMPLETED',
-      stripeId: invoice.payment_intent as string,
-      subscriptionId: subscription.id,
-    },
-  });
-
-  // Update subscription end date
-  await prisma.subscription.update({
-    where: { id: subscription.id },
-    data: {
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Extend by 30 days
-      status: 'active',
-    },
-  });
-
-  console.log(`Payment processed for subscription ${subscription.id}`);
 }
 
+// Handle failed payment
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
-  
-  // Find subscription in database
-  const subscription = await prisma.subscription.findFirst({
-    where: { stripeId: subscriptionId },
-  });
+  try {
+    const subscriptionId = invoice.subscription as string;
+    
+    if (!subscriptionId) {
+      console.error('No subscription ID in invoice');
+      return;
+    }
 
-  if (!subscription) {
-    console.error('Subscription not found for failed invoice:', invoice.id);
-    return;
+    // Update subscription status
+    await prisma.subscription.updateMany({
+      where: { stripeId: subscriptionId },
+      data: { status: 'expired' },
+    });
+
+    console.log(`Payment failed for subscription ${subscriptionId}`);
+  } catch (error) {
+    console.error('Error handling payment failed:', error);
   }
-
-  // Update subscription status
-  await prisma.subscription.update({
-    where: { id: subscription.id },
-    data: { status: 'expired' },
-  });
-
-  console.log(`Payment failed for subscription ${subscription.id}`);
 }
 
 // Routes

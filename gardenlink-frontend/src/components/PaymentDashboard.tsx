@@ -25,11 +25,10 @@ interface Subscription {
 }
 
 const PaymentDashboard = () => {
-  const [plans, setPlans] = useState<Record<string, SubscriptionPlan>>({});
+  const [plan, setPlan] = useState<SubscriptionPlan | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -45,18 +44,18 @@ const PaymentDashboard = () => {
         return;
       }
 
-      // Fetch plans and subscription in parallel
-      const [plansRes, subscriptionRes] = await Promise.all([
+      // Fetch plan and subscription in parallel
+      const [planRes, subscriptionRes] = await Promise.all([
         fetch('http://localhost:4000/api/payments/plans'),
         fetch('http://localhost:4000/api/payments/subscription', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
 
-      const plansData = await plansRes.json();
+      const planData = await planRes.json();
       const subscriptionData = await subscriptionRes.json();
 
-      setPlans(plansData);
+      setPlan(planData.subscription);
       setSubscription(subscriptionData.status === 'none' ? null : subscriptionData);
     } catch (err: any) {
       setError(err.message || 'Failed to load subscription data');
@@ -65,7 +64,7 @@ const PaymentDashboard = () => {
     }
   };
 
-  const handleSubscribe = async (plan: string) => {
+  const handleSubscribe = async () => {
     try {
       setProcessing(true);
       setError('');
@@ -82,7 +81,7 @@ const PaymentDashboard = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan: 'subscription' })
       });
 
       const data = await res.json();
@@ -176,7 +175,7 @@ const PaymentDashboard = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">{plans[subscription.plan]?.name || subscription.plan}</h3>
+                <h3 className="font-semibold text-lg">{plan?.name || subscription.plan}</h3>
                 <p className={`text-sm font-medium ${getStatusColor(subscription.status)}`}>
                   {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                 </p>
@@ -213,59 +212,48 @@ const PaymentDashboard = () => {
             <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Subscription</h3>
             <p className="text-gray-600 mb-4">
-              Subscribe to a plan to appear in search results and get more leads.
+              Subscribe to appear in search results and get more leads.
             </p>
           </div>
         )}
       </motion.div>
 
-      {/* Subscription Plans */}
-      {!subscription && (
+      {/* Subscription Plan */}
+      {!subscription && plan && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="card"
         >
-          <h2 className="text-xl font-bold text-garden mb-6">Choose Your Plan</h2>
+          <h2 className="text-xl font-bold text-garden mb-6">Subscribe to YardConnect</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Object.entries(plans).map(([planKey, plan]) => (
-              <div
-                key={planKey}
-                className={`border-2 rounded-lg p-6 ${
-                  selectedPlan === planKey ? 'border-garden bg-garden-light' : 'border-gray-200'
-                }`}
-              >
-                <div className="text-center mb-4">
-                  <h3 className="text-xl font-bold text-garden mb-2">{plan.name}</h3>
-                  <div className="text-3xl font-bold text-gray-900 mb-1">
-                    {formatPrice(plan.price)}
-                  </div>
-                  <p className="text-gray-600 text-sm">per month</p>
+          <div className="max-w-md mx-auto">
+            <div className="border-2 border-garden rounded-lg p-6 bg-garden-light">
+              <div className="text-center mb-4">
+                <h3 className="text-xl font-bold text-garden mb-2">{plan.name}</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-1">
+                  {formatPrice(plan.price)}
                 </div>
-
-                <ul className="space-y-2 mb-6">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => handleSubscribe(planKey)}
-                  disabled={processing}
-                  className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                    selectedPlan === planKey
-                      ? 'bg-garden text-white hover:bg-garden-dark'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {processing ? 'Processing...' : 'Subscribe'}
-                </button>
+                <p className="text-gray-600 text-sm">per month</p>
               </div>
-            ))}
+
+              <ul className="space-y-2 mb-6">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={handleSubscribe}
+                disabled={processing}
+                className="w-full py-2 px-4 rounded-lg font-medium bg-garden text-white hover:bg-garden-dark transition-colors"
+              >
+                {processing ? 'Processing...' : 'Subscribe Now'}
+              </button>
+            </div>
           </div>
         </motion.div>
       )}

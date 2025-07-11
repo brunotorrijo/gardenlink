@@ -50,16 +50,15 @@ const createReviewSchema = z.object({
   comment: z.string().max(500).optional(),
 });
 
-// Nodemailer setup (for dev: use ethereal email)
+// Nodemailer setup (production: use SendGrid SMTP)
 const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
+  host: process.env.SMTP_HOST, // e.g., 'smtp.sendgrid.net'
+  port: Number(process.env.SMTP_PORT) || 587, // 587 is standard for TLS
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.ETHEREAL_USER,
-    pass: process.env.ETHEREAL_PASS,
+    user: process.env.SMTP_USER, // e.g., 'apikey' for SendGrid
+    pass: process.env.SMTP_PASS, // your SendGrid API key
   },
-  // Add connection timeout and retry settings
   connectionTimeout: 10000, // 10 seconds
   greetingTimeout: 5000, // 5 seconds
   socketTimeout: 10000, // 10 seconds
@@ -78,7 +77,7 @@ transporter.verify((error: Error | null, success: boolean) => {
 const sendEmail = async (to: string, subject: string, html: string) => {
   try {
     const info = await transporter.sendMail({
-      from: '"YardConnect" <noreply@yardconnect.com>',
+      from: '"YardConnect" <yardconnect.test@gmail.com>',
       to,
       subject,
       html,
