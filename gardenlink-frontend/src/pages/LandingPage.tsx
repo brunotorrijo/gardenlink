@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Leaf, Search, Users, Star, Shield, Clock, DollarSign, Mail, Phone } from 'lucide-react';
+import { Leaf, Search, Users, Star, Shield, Clock, DollarSign, Mail } from 'lucide-react';
 
 const LandingPage = () => {
   const features = [

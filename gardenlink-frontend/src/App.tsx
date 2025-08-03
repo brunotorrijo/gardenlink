@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import LandingPage from './pages/LandingPage';
 import YardWorkerAuth from './pages/YardWorkerAuth';
 import YardWorkerDashboard from './pages/YardWorkerDashboard';

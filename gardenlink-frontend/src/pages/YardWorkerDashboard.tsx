@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Leaf, LogOut, UploadCloud, CreditCard } from 'lucide-react';
+import { LogOut, UploadCloud, CreditCard } from 'lucide-react';
 import { logout, isAuthenticated, getMyProfile, saveMyProfile } from '../api';
 
 const allServices = [

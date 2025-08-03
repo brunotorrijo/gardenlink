@@ -22,7 +22,7 @@ const SearchYardWorkers = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+
   const navigate = useNavigate();
 
   const fetchYardWorkers = async () => {

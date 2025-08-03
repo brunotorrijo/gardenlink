@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, CheckCircle, XCircle, Calendar, DollarSign, Star } from 'lucide-react';
+import { CreditCard, CheckCircle, XCircle, DollarSign } from 'lucide-react';
 
 interface SubscriptionPlan {
   name: string;
