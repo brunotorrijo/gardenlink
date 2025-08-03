@@ -147,14 +147,20 @@ const YardWorkerProfile = () => {
             <Link to="/search" className="btn-secondary">Back to Search</Link>
           </div>
 
-          {/* Reviews Section */}
-          <div className="mt-8 w-full">
-            <h2 className="text-xl font-bold text-garden flex items-center gap-2 mb-2">
-              <Star className="w-5 h-5" /> Reviews
-            </h2>
-            {reviews.length === 0 ? (
-              <p className="text-gray-400 text-sm mb-4">No reviews yet.</p>
-            ) : (
+                     {/* Reviews Section */}
+           <div className="mt-8 w-full">
+             <h2 className="text-xl font-bold text-garden flex items-center gap-2 mb-2">
+               <Star className="w-5 h-5" /> Reviews
+             </h2>
+             {reviewsLoading ? (
+               <div className="flex justify-center py-4">
+                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-garden"></div>
+               </div>
+             ) : reviewsError ? (
+               <p className="text-red-600 text-sm mb-4">{reviewsError}</p>
+             ) : reviews.length === 0 ? (
+               <p className="text-gray-400 text-sm mb-4">No reviews yet.</p>
+             ) : (
               <div className="mb-4 w-full">{reviews.map((review) => (
                 <div key={review.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-1">
