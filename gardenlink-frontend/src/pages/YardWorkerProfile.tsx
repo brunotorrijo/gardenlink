@@ -16,6 +16,8 @@ const YardWorkerProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState('');
 
   const [reviewForm, setReviewForm] = useState({ email: '', rating: 5, comment: '' });
   const [reviewLoading, setReviewLoading] = useState(false);

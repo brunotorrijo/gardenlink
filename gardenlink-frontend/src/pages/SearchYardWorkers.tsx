@@ -38,7 +38,6 @@ const SearchYardWorkers = () => {
         offset: (page - 1) * PAGE_SIZE,
       });
       setYardWorkers(data);
-      setTotal(data.length < PAGE_SIZE && page === 1 ? data.length : page * PAGE_SIZE + (data.length === PAGE_SIZE ? 1 : 0));
     } catch (err: any) {
       setError(err.message || 'Failed to load yard workers');
     } finally {
