@@ -169,6 +169,12 @@ const YardWorkerDashboard = () => {
         age: parseInt(form.age, 10),
         price: parseInt(form.price, 10),
       };
+      
+      // Remove photo field if it's empty to avoid validation errors
+      if (!profileData.photo || profileData.photo.trim() === '') {
+        delete profileData.photo;
+      }
+      
       await saveMyProfile(token, profileData);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
