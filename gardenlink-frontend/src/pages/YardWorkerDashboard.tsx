@@ -122,7 +122,7 @@ const YardWorkerDashboard = () => {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-      const res = await fetch('http://localhost:4000/api/yardworkers/profile/photo', {
+      const res = await fetch('https://yardconnect-backend.onrender.com/api/yardworkers/profile/photo', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -164,16 +164,20 @@ const YardWorkerDashboard = () => {
       return;
     }
     try {
-      const profileData = {
-        ...form,
+      // Create profile data without photo field if it's empty
+      const { photo, ...formWithoutPhoto } = form;
+      const profileData: any = {
+        ...formWithoutPhoto,
         age: parseInt(form.age, 10),
         price: parseInt(form.price, 10),
       };
       
-      // Remove photo field if it's empty to avoid validation errors
-      if (!profileData.photo || profileData.photo.trim() === '') {
-        delete profileData.photo;
+      // Only add photo field if it has a valid value
+      if (photo && photo.trim() !== '') {
+        profileData.photo = photo;
       }
+      
+      console.log('Sending profile data:', profileData); // Debug log
       
       await saveMyProfile(token, profileData);
       setSuccess(true);
