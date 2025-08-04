@@ -55,7 +55,7 @@ const YardWorkerProfile = () => {
     setReviewError('');
     setReviewSuccess(false);
     try {
-      const res = await fetch(`http://localhost:4000/api/yardworkers/reviews/pending`, {
+      const res = await fetch(`https://yardconnect-backend.onrender.com/api/yardworkers/reviews/pending`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

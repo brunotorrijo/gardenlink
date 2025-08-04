@@ -152,6 +152,7 @@ const YardWorkerDashboard = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🚀 handleSubmit called!'); // Test if function is called
     e.preventDefault();
     setSaving(true);
     setError('');

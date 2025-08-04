@@ -46,8 +46,8 @@ const PaymentDashboard = () => {
 
       // Fetch plan and subscription in parallel
       const [planRes, subscriptionRes] = await Promise.all([
-        fetch('http://localhost:4000/api/payments/plans'),
-        fetch('http://localhost:4000/api/payments/subscription', {
+        fetch('https://yardconnect-backend.onrender.com/api/payments/plans'),
+        fetch('https://yardconnect-backend.onrender.com/api/payments/subscription', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -75,7 +75,7 @@ const PaymentDashboard = () => {
         return;
       }
 
-      const res = await fetch('http://localhost:4000/api/payments/subscription', {
+      const res = await fetch('https://yardconnect-backend.onrender.com/api/payments/subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ const PaymentDashboard = () => {
         return;
       }
 
-      const res = await fetch('http://localhost:4000/api/payments/subscription', {
+      const res = await fetch('https://yardconnect-backend.onrender.com/api/payments/subscription', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
