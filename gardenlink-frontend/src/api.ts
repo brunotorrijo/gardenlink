@@ -1,5 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || 'https://yardconnect-backend.onrender.com/api';
 
+// Debug logging
+console.log('Environment variables:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  API_URL: API_URL
+});
+
 // Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
