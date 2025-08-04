@@ -255,37 +255,37 @@ const LandingPage = () => {
 
           {/* Subscription Plans */}
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Subscription Plans</h3>
-            <p className="text-gray-600">Choose the plan that fits your business needs</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Start Your YardConnect Journey</h3>
+            <p className="text-gray-600">Join our platform and start getting clients today</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="max-w-lg mx-auto">
             <motion.div
               key="subscription-plan"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className={`relative border-2 rounded-lg p-6 border-garden bg-garden-light`}
+              className="relative border-2 rounded-xl p-8 border-garden bg-gradient-to-br from-garden-light to-white shadow-lg"
             >
               <div className="text-center mb-6">
-                <h4 className="text-xl font-bold text-garden mb-2">{subscriptionPlan.name}</h4>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{subscriptionPlan.price}</div>
+                <h4 className="text-2xl font-bold text-garden mb-2">{subscriptionPlan.name}</h4>
+                <div className="text-4xl font-bold text-gray-900 mb-1">{subscriptionPlan.price}</div>
                 <p className="text-gray-600 text-sm">per month</p>
               </div>
-              <ul className="space-y-2 mb-6">
+              <ul className="space-y-3 mb-8">
                 {subscriptionPlan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center gap-2 text-sm">
+                  <li key={featureIndex} className="flex items-center gap-3 text-sm">
                     <div className="w-2 h-2 bg-garden rounded-full flex-shrink-0"></div>
-                    {feature}
+                    <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
               <Link
                 to="/yard-worker/auth"
-                className={`w-full py-2 px-4 rounded-lg font-medium transition-colors bg-garden text-white hover:bg-garden-dark`}
+                className="w-full py-3 px-6 rounded-lg font-semibold transition-colors bg-garden text-white hover:bg-garden-dark transform hover:scale-105"
               >
-                Get Started
+                Get Started Today
               </Link>
             </motion.div>
           </div>
