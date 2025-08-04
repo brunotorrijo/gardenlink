@@ -177,7 +177,11 @@ const YardWorkerDashboard = () => {
         profileData.photo = photo;
       }
       
-      console.log('Sending profile data:', profileData); // Debug log
+      console.log('Original form:', form);
+      console.log('Photo value:', photo);
+      console.log('Photo trimmed:', photo?.trim());
+      console.log('Sending profile data:', profileData);
+      console.log('Photo field in final data:', profileData.photo);
       
       await saveMyProfile(token, profileData);
       setSuccess(true);
