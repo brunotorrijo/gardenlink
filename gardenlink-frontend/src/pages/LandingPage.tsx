@@ -44,38 +44,22 @@ const LandingPage = () => {
     },
     {
       icon: <Clock className="w-6 h-6" />,
-      title: 'Flexible Plans',
-      description: 'Choose from Basic ($29), Premium ($59), or Featured ($99) monthly plans.'
+      title: 'Simple Pricing',
+      description: 'One straightforward plan at $10/month to get you started.'
     }
   ];
 
-  const stats = [
-    { number: '500+', label: 'Active Yard Workers' },
-    { number: '2,000+', label: 'Happy Customers' },
-    { number: '50+', label: 'Cities Covered' },
-    { number: '4.8', label: 'Average Rating' }
-  ];
-
-  const subscriptionPlans = [
-    {
-      name: 'Basic Plan',
-      price: '$29',
-      features: ['Appear in search results', 'Basic profile', 'Email contact', 'Review system'],
-      popular: false
-    },
-    {
-      name: 'Premium Plan',
-      price: '$59',
-      features: ['Priority placement', 'Enhanced profile', 'Phone contact', 'Featured listing'],
-      popular: true
-    },
-    {
-      name: 'Featured Plan',
-      price: '$99',
-      features: ['Top placement', 'Full profile', 'All contact methods', 'Analytics dashboard'],
-      popular: false
-    }
-  ];
+  const subscriptionPlan = {
+    name: 'YardConnect Subscription',
+    price: '$10',
+    features: [
+      'Appear in search results',
+      'Complete profile with photo',
+      'Contact information displayed',
+      'Review system access',
+      'Direct client contact'
+    ]
+  };
 
   return (
     <div className="min-h-screen">
@@ -122,21 +106,6 @@ const LandingPage = () => {
               >
                 Join as Yard Worker
               </Link>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
-            >
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                  <div className="text-white/80 text-sm">{stat.label}</div>
-                </div>
-              ))}
             </motion.div>
           </div>
         </div>
@@ -291,49 +260,34 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {subscriptionPlans.map((plan, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={`relative border-2 rounded-lg p-6 ${
-                  plan.popular ? 'border-garden bg-garden-light' : 'border-gray-200'
-                }`}
+            <motion.div
+              key="subscription-plan"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className={`relative border-2 rounded-lg p-6 border-garden bg-garden-light`}
+            >
+              <div className="text-center mb-6">
+                <h4 className="text-xl font-bold text-garden mb-2">{subscriptionPlan.name}</h4>
+                <div className="text-3xl font-bold text-gray-900 mb-1">{subscriptionPlan.price}</div>
+                <p className="text-gray-600 text-sm">per month</p>
+              </div>
+              <ul className="space-y-2 mb-6">
+                {subscriptionPlan.features.map((feature, featureIndex) => (
+                  <li key={featureIndex} className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-garden rounded-full flex-shrink-0"></div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/yard-worker/auth"
+                className={`w-full py-2 px-4 rounded-lg font-medium transition-colors bg-garden text-white hover:bg-garden-dark`}
               >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-garden text-white px-4 py-1 rounded-full text-sm font-medium">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-                <div className="text-center mb-6">
-                  <h4 className="text-xl font-bold text-garden mb-2">{plan.name}</h4>
-                  <div className="text-3xl font-bold text-gray-900 mb-1">{plan.price}</div>
-                  <p className="text-gray-600 text-sm">per month</p>
-                </div>
-                <ul className="space-y-2 mb-6">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-garden rounded-full flex-shrink-0"></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/yard-worker/auth"
-                  className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                    plan.popular
-                      ? 'bg-garden text-white hover:bg-garden-dark'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Get Started
-                </Link>
-              </motion.div>
-            ))}
+                Get Started
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -351,7 +305,7 @@ const LandingPage = () => {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of homeowners and yard workers who trust YardConnect for their garden care needs.
+              Join YardConnect today and start connecting homeowners with reliable yard workers in your area.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

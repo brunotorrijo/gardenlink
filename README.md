@@ -300,9 +300,11 @@ YardConnect is **LIVE** at `yard-connect.com` with full functionality including 
 
 ## 📋 *Current Validation Requirements & User Experience Issues*
 
-### **Profile Creation Validation (Current Issues)**
+### **Profile Creation Validation (FIXED ✅)**
 
 **Problem:** Users get generic "Invalid inputs" error without specific feedback.
+
+**Solution:** Fixed photo field handling - frontend now omits photo field when empty instead of sending empty string.
 
 **Current Validation Requirements:**
 
@@ -325,25 +327,31 @@ YardConnect is **LIVE** at `yard-connect.com` with full functionality including 
 - Garden Design
 - Maintenance
 
-### **User Experience Issues to Fix:**
+### **Recent Fixes Applied:**
 
-1. **Generic Error Messages** 🔴
-   - Current: "Invalid inputs"
-   - Should show: "Name is required", "Age must be between 18-80", etc.
+1. **✅ Profile Creation** - Fixed photo field validation issue
+2. **✅ Payment Page Layout** - Redesigned for single subscription plan
+3. **✅ Landing Page** - Removed misleading stats, updated to single plan
+4. **✅ SPA Routing** - Added Vercel config to prevent 404 errors on reload
+5. **✅ API URLs** - Fixed all localhost URLs to use production backend
 
-2. **No Real-time Validation** 🟡
-   - Users don't know requirements until they submit
-   - Should validate as they type
+### **User Experience Improvements Made:**
 
-3. **No Field-specific Feedback** 🟡
-   - All errors show as one message
-   - Should highlight specific problematic fields
+1. **Better Payment Page Design** 🎨
+   - Single plan layout with gradient design
+   - More natural presentation for one subscription option
+   - Clear call-to-action and benefits
 
-4. **No Input Formatting** 🟡
-   - No guidance on expected formats
-   - Should show examples or placeholders
+2. **Honest Landing Page** 📝
+   - Removed misleading user stats (500+ users, 4.8 rating, etc.)
+   - Updated to single $10/month plan
+   - More appropriate startup messaging
 
-### **Recommended Improvements:**
+3. **Fixed Page Reload Issues** 🔧
+   - Added Vercel configuration for SPA routing
+   - Prevents 404 errors when reloading on sub-pages
+
+### **Recommended Future Improvements:**
 
 1. **Add detailed validation messages**
 2. **Implement real-time field validation**

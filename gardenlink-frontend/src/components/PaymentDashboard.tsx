@@ -225,34 +225,41 @@ const PaymentDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="card"
         >
-          <h2 className="text-xl font-bold text-garden mb-6">Subscribe to YardConnect</h2>
-          
-          <div className="max-w-md mx-auto">
-            <div className="border-2 border-garden rounded-lg p-6 bg-garden-light">
-              <div className="text-center mb-4">
-                <h3 className="text-xl font-bold text-garden mb-2">{plan.name}</h3>
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {formatPrice(plan.price)}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-garden mb-2">Get Started with YardConnect</h2>
+            <p className="text-gray-600 mb-8">Unlock your full potential and start getting clients today</p>
+            
+            <div className="max-w-lg mx-auto">
+              <div className="bg-gradient-to-br from-garden to-garden-dark rounded-2xl p-8 text-white shadow-xl">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                  <div className="text-4xl font-bold mb-1">
+                    {formatPrice(plan.price)}
+                  </div>
+                  <p className="text-garden-light text-sm">per month</p>
                 </div>
-                <p className="text-gray-600 text-sm">per month</p>
+
+                <div className="space-y-4 mb-8">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-300 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleSubscribe}
+                  disabled={processing}
+                  className="w-full bg-white text-garden font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processing ? 'Processing...' : 'Start Your Subscription'}
+                </button>
               </div>
-
-              <ul className="space-y-2 mb-6">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={handleSubscribe}
-                disabled={processing}
-                className="w-full py-2 px-4 rounded-lg font-medium bg-garden text-white hover:bg-garden-dark transition-colors"
-              >
-                {processing ? 'Processing...' : 'Subscribe Now'}
-              </button>
+              
+              <p className="text-xs text-gray-500 mt-4">
+                Cancel anytime. No long-term commitment required.
+              </p>
             </div>
           </div>
         </motion.div>
