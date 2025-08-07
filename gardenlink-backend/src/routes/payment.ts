@@ -175,10 +175,13 @@ const getSubscriptionPlansHandler: RequestHandler = async (req: Request, res: Re
 // Stripe webhook handler
 const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response, next) => {
   try {
+    console.log('🔔 Webhook received:', req.headers['stripe-signature'] ? 'with signature' : 'no signature');
+    
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!sig || !endpointSecret) {
+      console.error('❌ Missing signature or webhook secret');
       res.status(400).json({ error: 'Missing signature or webhook secret' });
       return;
     }
@@ -187,31 +190,38 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response,
 
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+      console.log('✅ Webhook signature verified');
     } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+      console.error('❌ Webhook signature verification failed:', err);
       res.status(400).json({ error: 'Invalid signature' });
       return;
     }
 
+    console.log('📦 Processing event:', event.type);
+
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
+        console.log('💰 Processing checkout.session.completed');
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
       case 'invoice.payment_succeeded':
+        console.log('💳 Processing invoice.payment_succeeded');
         await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
       case 'invoice.payment_failed':
+        console.log('❌ Processing invoice.payment_failed');
         await handlePaymentFailed(event.data.object as Stripe.Invoice);
         break;
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`⚠️ Unhandled event type: ${event.type}`);
     }
 
+    console.log('✅ Webhook processed successfully');
     res.json({ received: true });
     return;
   } catch (err) {
-    console.error('Webhook error:', err);
+    console.error('❌ Webhook error:', err);
     next(err);
   }
 };
@@ -219,12 +229,17 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response,
 // Handle successful checkout
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
+    console.log('🎯 Starting handleCheckoutCompleted');
+    console.log('📋 Session metadata:', session.metadata);
+    
     const { userId, plan, yardWorkerName } = session.metadata || {};
     
     if (!userId) {
-      console.error('No userId in session metadata');
+      console.error('❌ No userId in session metadata');
       return;
     }
+
+    console.log('👤 Processing for userId:', userId);
 
     // Create or update subscription in database
     const subscription = await prisma.subscription.upsert({
@@ -246,8 +261,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       },
     });
 
+    console.log('✅ Subscription created/updated:', subscription.id);
+
     // Create payment record
-    await prisma.payment.create({
+    const payment = await prisma.payment.create({
       data: {
         userId,
         amount: SUBSCRIPTION_PLAN.price,
@@ -257,9 +274,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       },
     });
 
-    console.log(`Subscription created for user ${userId} (${yardWorkerName})`);
+    console.log('💰 Payment record created:', payment.id);
+    console.log(`🎉 Subscription created for user ${userId} (${yardWorkerName})`);
   } catch (error) {
-    console.error('Error handling checkout completed:', error);
+    console.error('❌ Error handling checkout completed:', error);
   }
 }
 
@@ -332,6 +350,6 @@ router.get('/subscription', authenticateToken, getMySubscriptionHandler);
 router.post('/subscription', authenticateToken, createSubscriptionHandler);
 router.delete('/subscription', authenticateToken, cancelSubscriptionHandler);
 router.get('/plans', getSubscriptionPlansHandler);
-router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
+export { stripeWebhookHandler };
 export default router; 

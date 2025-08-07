@@ -13,6 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
+
+// IMPORTANT: Webhook route must be before JSON middleware
+// This ensures the raw body is preserved for Stripe signature verification
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 
 // Serve uploaded images statically
@@ -49,6 +54,13 @@ app.get('/api/users', async (req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/yardworkers', yardworkerRouter);
 app.use('/api/payments', paymentRouter);
+
+// Add webhook handler after other routes
+app.post('/api/payments/webhook', async (req, res, next) => {
+  // Import the webhook handler function directly
+  const { stripeWebhookHandler } = await import('./routes/payment');
+  await stripeWebhookHandler(req, res, next);
+});
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
