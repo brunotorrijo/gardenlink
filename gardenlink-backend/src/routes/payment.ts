@@ -96,8 +96,8 @@ const createSubscriptionHandler: RequestHandler = async (req: AuthRequest, res: 
         },
       ],
       mode: 'subscription',
-      success_url: `${req.protocol}://${req.get('host')}/yardworker/dashboard?success=true`,
-      cancel_url: `${req.protocol}://${req.get('host')}/yardworker/dashboard?canceled=true`,
+      success_url: 'https://yard-connect.com/yardworker/dashboard?success=true',
+      cancel_url: 'https://yard-connect.com/yardworker/dashboard?canceled=true',
       customer_email: user.email,
       metadata: {
         userId,

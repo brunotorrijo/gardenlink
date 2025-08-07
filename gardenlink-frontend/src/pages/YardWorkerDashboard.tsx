@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, UploadCloud, CreditCard } from 'lucide-react';
-import { logout, isAuthenticated, getMyProfile, saveMyProfile } from '../api';
+import { 
+  UploadCloud, 
+  CreditCard, 
+  LogOut, 
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
+import { getMyProfile, saveMyProfile, isAuthenticated, logout } from '../api';
 
 const allServices = [
   'Lawn Mowing',
@@ -54,6 +60,7 @@ const YardWorkerDashboard = () => {
   const [errorDetails, setErrorDetails] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Check authentication and load profile on mount
   useEffect(() => {
@@ -61,6 +68,21 @@ const YardWorkerDashboard = () => {
       navigate('/yardworker/auth');
       return;
     }
+    
+    // Check for success/cancel parameters from Stripe redirect
+    const successParam = searchParams.get('success');
+    const canceledParam = searchParams.get('canceled');
+    
+    if (successParam === 'true') {
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 5000);
+    }
+    
+    if (canceledParam === 'true') {
+      setError('Payment was canceled. You can try again anytime.');
+      setTimeout(() => setError(''), 5000);
+    }
+    
     // Load user data from localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -92,7 +114,7 @@ const YardWorkerDashboard = () => {
     } else {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -229,6 +251,30 @@ const YardWorkerDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="card"
         >
+          {/* Success Message */}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2"
+            >
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span className="text-green-800 font-medium">Payment successful! Your profile is now published.</span>
+            </motion.div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2"
+            >
+              <XCircle className="w-5 h-5 text-red-600" />
+              <span className="text-red-800">{error}</span>
+            </motion.div>
+          )}
+
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 mr-4">
