@@ -78,6 +78,37 @@ app.get('/api/db-test', async (req, res, next) => {
   }
 });
 
+// Migration endpoint (for development only)
+app.post('/api/migrate', async (req, res, next) => {
+  try {
+    console.log('🚀 Starting database migration...');
+    
+    // Use Prisma's db push to create tables
+    const { execSync } = require('child_process');
+    
+    // Push the schema to create tables
+    console.log('🔧 Pushing schema to database...');
+    execSync('npx prisma db push --accept-data-loss', { 
+      stdio: 'pipe',
+      cwd: process.cwd()
+    });
+    
+    console.log('✅ Migration completed successfully!');
+    
+    res.json({ 
+      status: 'ok', 
+      message: 'Database migration completed successfully!'
+    });
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Migration failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 app.get('/api/users', async (req, res, next) => {
   try {
     const users = await prisma.user.findMany();

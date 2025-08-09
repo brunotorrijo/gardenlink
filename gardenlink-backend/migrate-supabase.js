@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const path = require('path');
 
-console.log('🚀 Starting Supabase migration from backend server...');
+console.log('🚀 Starting Supabase migration...');
 
 try {
   // Change to the backend directory

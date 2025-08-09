@@ -4,7 +4,7 @@ require('dotenv').config();
 const prisma = new PrismaClient();
 
 async function testConnection() {
-  console.log('🔍 Testing Supabase connection from backend server...');
+  console.log('🔍 Testing Supabase connection...');
   
   try {
     // Test the connection
