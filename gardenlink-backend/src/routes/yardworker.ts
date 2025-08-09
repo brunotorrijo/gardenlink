@@ -186,7 +186,7 @@ const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Respo
           bio: profileData.bio,
           photo: profileData.photo,
           services: {
-            connectOrCreate: profileData.services.map(serviceName => ({
+            connectOrCreate: profileData.services.map((serviceName: string) => ({
               where: { name: serviceName },
               create: { name: serviceName },
             })),
@@ -217,7 +217,7 @@ const createOrUpdateProfileHandler = async (req: AuthRequestWithFile, res: Respo
           bio: profileData.bio,
           photo: profileData.photo,
           services: {
-            connectOrCreate: profileData.services.map(serviceName => ({
+            connectOrCreate: profileData.services.map((serviceName: string) => ({
               where: { name: serviceName },
               create: { name: serviceName },
             })),
