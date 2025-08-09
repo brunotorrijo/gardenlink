@@ -42,6 +42,42 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'YardConnect backend is running!' });
 });
 
+
+// Database test endpoint
+app.get('/api/db-test', async (req, res, next) => {
+  try {
+    console.log('🔍 Testing database connection...');
+    
+    // Test the connection
+    await prisma.$connect();
+    console.log('✅ Database connection successful!');
+    
+    // Test a simple query
+    const userCount = await prisma.user.count();
+    console.log(`✅ Found ${userCount} users in the database`);
+    
+    // Test profile count
+    const profileCount = await prisma.yardWorkerProfile.count();
+    console.log(`✅ Found ${profileCount} yard worker profiles`);
+    
+    res.json({ 
+      status: 'ok', 
+      message: 'Database connection successful!',
+      stats: {
+        users: userCount,
+        profiles: profileCount
+      }
+    });
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Database connection failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 app.get('/api/users', async (req, res, next) => {
   try {
     const users = await prisma.user.findMany();
