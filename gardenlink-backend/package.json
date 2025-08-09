@@ -8,15 +8,12 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "postinstall": "npx prisma generate",
-    "migrate:supabase": "node migrate-supabase.js",
-    "test:supabase": "node test-supabase-connection.js",
     "db:push": "npx prisma db push --accept-data-loss",
     "db:pull": "npx prisma db pull",
     "db:generate": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
-    "@supabase/supabase-js": "^2.39.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

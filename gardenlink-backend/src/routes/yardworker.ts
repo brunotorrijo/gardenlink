@@ -7,7 +7,6 @@ import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import { supabaseAdmin } from '../supabase';
 
 const router = express.Router();
 
@@ -16,9 +15,21 @@ interface AuthRequestWithFile extends BaseAuthRequest {
   file?: Express.Multer.File;
 }
 
-// Multer setup for photo uploads (memory storage for Supabase)
+// Multer setup for photo uploads (local storage)
 const upload = multer({ 
-  storage: multer.memoryStorage(),
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(__dirname, '../../uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  }),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
@@ -370,30 +381,9 @@ router.post('/profile/photo', authenticateToken, upload.single('photo'), async (
       return;
     }
 
-    // Upload to Supabase Storage
-    const fileExt = path.extname(req.file.originalname);
-    const fileName = `${userId}_${Date.now()}${fileExt}`;
-    const filePath = `yardworker_photos/${fileName}`;
-
-    const { data, error } = await supabaseAdmin.storage
-      .from('photos')
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false
-      });
-
-    if (error) {
-      console.error('Supabase upload error:', error);
-      res.status(500).json({ error: 'Failed to upload photo' });
-      return;
-    }
-
-    // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from('photos')
-      .getPublicUrl(filePath);
-
-    const photoUrl = urlData.publicUrl;
+    // Get the public URL for the uploaded file
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const photoUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     // Update profile with new photo URL
     await prisma.yardWorkerProfile.update({

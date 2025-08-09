@@ -78,43 +78,6 @@ app.get('/api/db-test', async (req, res, next) => {
   }
 });
 
-// Migration endpoint (for development only)
-app.post('/api/migrate', async (req, res, next) => {
-  try {
-    console.log('🚀 Starting database migration...');
-    
-    // Use child_process to run the migration
-    const { execSync } = require('child_process');
-    
-    // Push the schema to create tables
-    console.log('🔧 Pushing schema to database...');
-    const result = execSync('npx prisma db push --accept-data-loss', { 
-      stdio: 'pipe',
-      cwd: process.cwd(),
-      env: { ...process.env },
-      encoding: 'utf8'
-    });
-    
-    console.log('✅ Migration completed successfully!');
-    console.log('Migration output:', result);
-    
-    res.json({ 
-      status: 'ok', 
-      message: 'Database migration completed successfully!',
-      details: 'All tables have been created in Supabase',
-      output: result
-    });
-  } catch (error) {
-    console.error('❌ Migration failed:', error);
-    res.status(500).json({ 
-      status: 'error', 
-      message: 'Migration failed',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      details: 'Check the server logs for more information'
-    });
-  }
-});
-
 app.get('/api/users', async (req, res, next) => {
   try {
     const users = await prisma.user.findMany();
