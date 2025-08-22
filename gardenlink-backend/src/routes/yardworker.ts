@@ -396,10 +396,27 @@ router.post('/profile/photo', authenticateToken, upload.single('photo'), async (
 
     const photoUrl = urlData.publicUrl;
 
-    // Update profile with new photo URL
-    await prisma.yardWorkerProfile.update({
+    // Check if profile exists, create or update accordingly
+    await prisma.yardWorkerProfile.upsert({
       where: { userId },
-      data: { photo: photoUrl },
+      update: { photo: photoUrl },
+      create: {
+        userId,
+        name: 'Profile', // Default values for required fields
+        location: 'Location',
+        zip: '00000',
+        age: 18,
+        price: 0,
+        email: '', // Will be filled when user creates full profile
+        bio: 'Profile created for photo upload',
+        photo: photoUrl,
+        services: {
+          connectOrCreate: {
+            where: { name: 'Lawn Mowing' },
+            create: { name: 'Lawn Mowing' }
+          }
+        }
+      }
     });
 
     res.json({ photo: photoUrl });
