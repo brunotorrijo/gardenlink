@@ -47,11 +47,7 @@ app.get('/api/db-test', async (req, res, next) => {
   try {
     console.log('🔍 Testing database connection...');
     
-    // Test the connection
-    await prisma.$connect();
-    console.log('✅ Database connection successful!');
-    
-    // Test a simple query
+    // Test a simple query without explicit connect
     const userCount = await prisma.user.count();
     console.log(`✅ Found ${userCount} users in the database`);
     
