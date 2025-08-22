@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { supabaseStorage } from '../supabase';
 
 const router = express.Router();
 
@@ -15,21 +16,9 @@ interface AuthRequestWithFile extends BaseAuthRequest {
   file?: Express.Multer.File;
 }
 
-// Multer setup for photo uploads (local storage)
+// Multer setup for photo uploads (memory storage for Supabase)
 const upload = multer({ 
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadDir = path.join(__dirname, '../../uploads');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  }),
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
@@ -381,9 +370,31 @@ router.post('/profile/photo', authenticateToken, upload.single('photo'), async (
       return;
     }
 
-    // Get the public URL for the uploaded file
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const photoUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // Generate unique filename
+    const fileExtension = path.extname(req.file.originalname || '');
+    const fileName = `profile-${userId}-${Date.now()}-${Math.round(Math.random() * 1E9)}${fileExtension}`;
+    
+    // Upload to Supabase Storage
+    const { data, error } = await supabaseStorage
+      .from('profile-photos')
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      res.status(500).json({ error: 'Failed to upload image' });
+      return;
+    }
+
+    // Get public URL from Supabase
+    const { data: urlData } = supabaseStorage
+      .from('profile-photos')
+      .getPublicUrl(fileName);
+
+    const photoUrl = urlData.publicUrl;
 
     // Update profile with new photo URL
     await prisma.yardWorkerProfile.update({

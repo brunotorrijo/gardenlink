@@ -20,8 +20,7 @@ app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json());
 
-// Serve uploaded images statically
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// File serving is now handled by Supabase Storage
 
 // Root route
 app.get('/', (req, res) => {
