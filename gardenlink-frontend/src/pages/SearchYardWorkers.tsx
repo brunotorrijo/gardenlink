@@ -19,7 +19,6 @@ const SearchYardWorkers = () => {
   const [error, setError] = useState('');
   const [location, setLocation] = useState('');
   const [service, setService] = useState('');
-  const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [page, setPage] = useState(1);
 
@@ -32,7 +31,7 @@ const SearchYardWorkers = () => {
       const data = await searchYardWorkers({
         location: location || undefined,
         service: service || undefined,
-        minPrice: minPrice ? parseInt(minPrice, 10) : undefined,
+
         maxPrice: maxPrice ? parseInt(maxPrice, 10) : undefined,
         limit: PAGE_SIZE,
         offset: (page - 1) * PAGE_SIZE,
@@ -48,7 +47,7 @@ const SearchYardWorkers = () => {
   useEffect(() => {
     fetchYardWorkers();
     // eslint-disable-next-line
-  }, [location, service, minPrice, maxPrice, page]);
+  }, [location, service, maxPrice, page]);
 
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,17 +87,7 @@ const SearchYardWorkers = () => {
                 ))}
               </select>
             </div>
-            <div className="flex-1 min-w-[120px]">
-              <label className="block text-sm font-medium mb-1">Min Price</label>
-              <input
-                type="number"
-                className="input-field"
-                placeholder="$"
-                value={minPrice}
-                onChange={e => setMinPrice(e.target.value)}
-                min={0}
-              />
-            </div>
+
             <div className="flex-1 min-w-[120px]">
               <label className="block text-sm font-medium mb-1">Max Price</label>
               <input
